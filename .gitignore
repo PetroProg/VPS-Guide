@@ -1,0 +1,34 @@
+# Secrets & environment files
+.env
+.env.*
+!.env.example
+
+# SSH keys & real local SSH configs
+*.pem
+*.key
+*.pub
+id_ed25519*
+id_rsa*
+ssh_config
+config
+
+# Database credentials & backup dumps
+.my.cnf
+*my.cnf
+!my.cnf.example
+*.sql
+*.sql.gz
+*.tar.gz
+*.bak
+
+# Local workspace / agent metadata
+GEMINI.md
+STATE.md
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/

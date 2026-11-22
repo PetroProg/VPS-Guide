@@ -1,0 +1,12 @@
+# ==============================================================================
+# MariaDB Client Credentials Template (~/.my.cnf on the VPS)
+# Copy to ~/.my.cnf, replace placeholders, and lock down permissions:
+#   chmod 600 ~/.my.cnf
+# NEVER commit your real ~/.my.cnf to Git.
+# ==============================================================================
+
+[client]
+user=<DB_BACKUP_USER>
+password=<CHANGE_ME_STRONG_PASSWORD>
+host=127.0.0.1
+port=3306

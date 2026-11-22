@@ -1,0 +1,62 @@
+# ==============================================================================
+# Nginx Server Block Template for PHP 8.2-FPM
+# Target path: /etc/nginx/sites-available/<DOMAIN>.conf
+# Enable with: sudo ln -s /etc/nginx/sites-available/<DOMAIN>.conf /etc/nginx/sites-enabled/
+# Test & reload: sudo nginx -t && sudo systemctl reload nginx
+# ==============================================================================
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name <DOMAIN> www.<DOMAIN>;
+
+    root /var/www/<DOMAIN>/public;
+    index index.php index.html;
+
+    # Hide Nginx version in headers and error pages
+    server_tokens off;
+
+    # Limit upload size & request timeouts
+    client_max_body_size 10M;
+    client_body_timeout 12s;
+    client_header_timeout 12s;
+
+    # Baseline security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+
+    # Main routing
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Pass PHP scripts to PHP 8.2-FPM via Unix socket
+    location ~ \.php$ {
+        try_files $fastcgi_script_name =404;
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+    }
+
+    # Block PHP execution inside writable upload directories (if used)
+    location ~* ^/uploads/.*\.php$ {
+        deny all;
+    }
+
+    # Deny access to hidden files (.git, .env, .htaccess), allow ACME challenges
+    location ~ /\.(?!well-known).* {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Deny direct access to sensitive backup/config files
+    location ~* \.(env|sql|bak|log|ini|sh|conf)$ {
+        deny all;
+    }
+
+    access_log /var/log/nginx/<DOMAIN>.access.log;
+    error_log  /var/log/nginx/<DOMAIN>.error.log warn;
+}

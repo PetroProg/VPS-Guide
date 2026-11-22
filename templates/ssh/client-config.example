@@ -1,0 +1,35 @@
+# ==============================================================================
+# Local SSH Client Configuration (~/.ssh/config)
+# Permissions required: chmod 700 ~/.ssh && chmod 600 ~/.ssh/config
+# Replace all <PLACEHOLDERS> before use.
+# ==============================================================================
+
+# 1. Bastion (Jump Host)
+Host bastion
+    HostName        <BASTION_IP>
+    User            <BASTION_USER>
+    IdentityFile    ~/.ssh/id_ed25519_bastion
+    IdentitiesOnly  yes
+    ForwardAgent    no
+
+# 2. Direct SSH to VPS via Bastion
+Host vps-app
+    HostName        <VPS_IP>
+    User            <VPS_USER>
+    IdentityFile    ~/.ssh/id_ed25519_vps
+    IdentitiesOnly  yes
+    ForwardAgent    no
+    ProxyJump       bastion
+    # Alternative for older OpenSSH clients (< 7.3):
+    # ProxyCommand  ssh -W %h:%p bastion
+
+# 3. Local SFTP Tunnel (e.g., for FileZilla on sftp://127.0.0.1:2222)
+# Binds strictly to 127.0.0.1 so the tunnel is never exposed on the LAN.
+Host tunnel-vps
+    HostName        <VPS_IP>
+    User            <VPS_USER>
+    IdentityFile    ~/.ssh/id_ed25519_vps
+    IdentitiesOnly  yes
+    ForwardAgent    no
+    ProxyJump       bastion
+    LocalForward    127.0.0.1:2222 127.0.0.1:22
